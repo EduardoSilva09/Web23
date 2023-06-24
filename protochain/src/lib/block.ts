@@ -33,10 +33,10 @@ export default class Block {
    * Validates the block
    * @returns Returns true if the block is valid
    */
-  isValid(): boolean {
+  isValid(previousHash: string, previousIndex: number): boolean {
     return (
-      !(this.index < 0) &&
-      !!this.previousHash &&
+      previousIndex === this.index - 1 &&
+      this.previousHash === previousHash &&
       !!this.data &&
       !!this.hash &&
       !(this.timestamp < 1)

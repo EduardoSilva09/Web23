@@ -37,8 +37,8 @@ export default class Block {
     return (
       previousIndex === this.index - 1 &&
       this.previousHash === previousHash &&
+      this.hash === this.getHash() &&
       !!this.data &&
-      !!this.hash &&
       !(this.timestamp < 1)
     );
   }

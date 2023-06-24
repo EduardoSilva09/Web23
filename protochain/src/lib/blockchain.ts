@@ -14,10 +14,19 @@ export default class Blockchain {
     this.nextIndex++;
   }
 
+  /**
+   * Get the last block added
+   * @returns Returns the last block added
+   */
   getLastBlock(): Block {
     return this.blocks[this.blocks.length - 1];
   }
 
+  /**
+   * Adds a new block to the blockchain
+   * @param block Block to be added
+   * @returns Returns true if block is added
+   */
   addBlock(block: Block): boolean {
     const lastBlock = this.getLastBlock();
     if (!block.isValid(lastBlock.hash, lastBlock.index)) return false;
@@ -26,6 +35,10 @@ export default class Blockchain {
     return true;
   }
 
+  /**
+   * Validates the blockchain
+   * @returns Returns true if the blockchain is valid
+   */
   isValid(): boolean {
     for (let i = this.blocks.length - 1; i > 0; i--) {
       const currentBlock = this.blocks[i];

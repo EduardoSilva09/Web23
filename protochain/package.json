@@ -1,0 +1,18 @@
+{
+  "name": "protochain",
+  "version": "1.0.0",
+  "description": "Projeto para desenvolver uma blockchain para fins didáticos",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx tsc",
+    "start": "node ./dist/blockchain.js"
+  },
+  "keywords": [
+    "Blockchain"
+  ],
+  "author": "Eduardo Silva Feitosa",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}

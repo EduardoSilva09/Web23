@@ -28,12 +28,15 @@ export default class Blockchain {
    * @param block Block to be added
    * @returns Returns true if block is added
    */
-  addBlock(block: Block): boolean {
+  addBlock(block: Block): Validation {
     const lastBlock = this.getLastBlock();
-    if (!block.isValid(lastBlock.hash, lastBlock.index)) return false;
+    const validation = block.isValid(lastBlock.hash, lastBlock.index);
+    if (!validation.success)
+      return new Validation(false, `Invalid block: ${validation.message}`);
+
     this.blocks.push(block);
     this.nextIndex++;
-    return true;
+    return new Validation();
   }
 
   /**

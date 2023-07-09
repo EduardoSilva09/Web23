@@ -1,4 +1,5 @@
 import Block from "../block";
+import BlockInfo from "../blockInfo";
 import Validation from "../validation";
 /**
  * Mocked Blockchain class
@@ -58,5 +59,27 @@ export default class Blockchain {
    */
   isValid(): Validation {
     return new Validation();
+  }
+
+  getFeePerTx(): number {
+    return 1;
+  }
+
+  getNextBlock(): BlockInfo {
+    const data = new Date().toString();
+    const difficulty = 0;
+    const previousHash = this.getLastBlock().hash;
+    const index = this.blocks.length;
+    const feePerTx = this.getFeePerTx();
+    const maxDifficulty = 62;
+
+    return {
+      index,
+      previousHash,
+      difficulty,
+      maxDifficulty,
+      feePerTx,
+      data,
+    } as BlockInfo;
   }
 }

@@ -30,6 +30,12 @@ describe("Blockchain", () => {
     expect(response.status).toEqual(404);
   });
 
+  test("GET /blocks/next - Should get next block info", async () => {
+    const response = await request(app).get("/blocks/next");
+    expect(response.status).toEqual(200);
+    expect(response.body.index).toEqual(1);
+  });
+
   test("POST /blocks/ - Should add block", async () => {
     const block = new Block({ index: 1 } as Block);
 

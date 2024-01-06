@@ -18,6 +18,14 @@ async function mine() {
   const { data } = await axios.get(
     `${process.env.BLOCKCHAIN_SERVER}blocks/next`
   );
+
+  if (!data) {
+    console.log('No tx found. Waiting...');
+    return setTimeout(() => {
+      mine();
+    }, 5000);
+  }
+
   const blockInfo = data as BlockInfo;
 
   const newBlock = Block.fromBlockInfo(blockInfo);

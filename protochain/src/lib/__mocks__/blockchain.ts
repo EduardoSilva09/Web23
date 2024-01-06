@@ -3,11 +3,13 @@ import BlockInfo from "../blockInfo";
 import Transaction from "./transaction";
 import Validation from "../validation";
 import TransactionType from "../transactionType";
+import TransactionSearch from "../transactionSearch";
 /**
  * Mocked Blockchain class
  */
 export default class Blockchain {
   blocks: Block[];
+  mempool: Transaction[];
   nextIndex: number = 0;
 
   /**
@@ -25,6 +27,7 @@ export default class Blockchain {
         timestamp: Date.now(),
       } as Block),
     ];
+    this.mempool = [];
     this.nextIndex++;
   }
 
@@ -88,5 +91,19 @@ export default class Blockchain {
         data: new Date().toString()
       } as Transaction)],
     } as BlockInfo;
+  }
+
+  addTransaction(transaction: Transaction): Validation {
+    const validation = transaction.isValid()
+    if (!validation.success) { return validation; }
+    this.mempool.push(transaction);
+    return new Validation()
+  }
+
+  getTransaction(hash: string): TransactionSearch {
+    return {
+      mempoolIndex: 0,
+      transaction: { hash }
+    } as TransactionSearch;
   }
 }

@@ -3,6 +3,9 @@ dotenv.config();
 import axios from 'axios';
 import readline from 'readline';
 import Wallet from "../lib/wallet";
+import Transaction from '../lib/transaction';
+import TransactionType from '../lib/transactionType';
+import TransactionInput from '../lib/transactionInput';
 
 const BLOCKCHAIN_SERVER = process.env.BLOCKCHAIN_SERVER;
 const rl = readline.createInterface({
@@ -85,7 +88,40 @@ function sendTx() {
     console.log("You don't have a wallet yet.");
     return preMenu();
   }
-  //TODO: send tx via API
+  console.log(`Your wallet is ${myWalletPub}`);
+  rl.question('To Wallet:', (toWallet) => {
+    if (toWallet.length < 66) {
+      console.log('Invalid wallet.');
+      return preMenu();
+    }
+    rl.question('Ammount: ', async (amountStr) => {
+      const amount = parseInt(amountStr);
+      if (!amount) {
+        console.log('Invalid amount.');
+        return preMenu();
+      }
+      const tx = new Transaction();
+      tx.timestamp = Date.now()
+      tx.to = toWallet;
+      tx.type = TransactionType.REGULAR;
+      tx.txInput = new TransactionInput({
+        amount,
+        fromAddress: myWalletPub
+      } as TransactionInput)
+
+      tx.txInput.sign(myWalletPriv);
+      tx.hash = tx.getHash();
+
+      try {
+        const txResponse = await axios.post(`${BLOCKCHAIN_SERVER}transactions/`, tx);
+        console.log(`Transaction accepted. Waiting the miners!`);
+        console.log(txResponse.data.hash);
+      } catch (error: any) {
+        console.error(error.response ? error.response.data : error.message);
+      }
+      return preMenu();
+    })
+  })
   preMenu();
 }
 

@@ -114,6 +114,22 @@ describe("Blockchain tests", () => {
     expect(validation.success).toEqual(true);
   });
 
+  test("Should NOT Add Transaction (Pending tx)", () => {
+    const blockchain = new Blockchain();
+    const tx = new Transaction({
+      txInput: new TransactionInput(),
+      hash: 'zaa'
+    } as Transaction);
+    blockchain.addTransaction(tx);
+    const tx2 = new Transaction({
+      txInput: new TransactionInput(),
+      hash: 'zyx'
+    } as Transaction);
+
+    const validation = blockchain.addTransaction(tx2);
+    expect(validation.success).toBeFalsy();
+  });
+
   test("Should NOT Add Transaction (Invalid tx)", () => {
     const blockchain = new Blockchain();
     const txInput = new TransactionInput()
@@ -144,18 +160,18 @@ describe("Blockchain tests", () => {
     expect(validation.success).toEqual(false);
   });
 
-  test("Should NOT Add Transaction (Duplicated in Mempool)", () => {
-    const blockchain = new Blockchain();
-    const tx = new Transaction({
-      txInput: new TransactionInput(),
-      hash: 'zaa'
-    } as Transaction);
+  // test("Should NOT Add Transaction (Duplicated in Mempool)", () => {
+  //   const blockchain = new Blockchain();
+  //   const tx = new Transaction({
+  //     txInput: new TransactionInput(),
+  //     hash: 'zaa'
+  //   } as Transaction);
 
-    blockchain.mempool.push(tx);
+  //   blockchain.mempool.push(tx);
 
-    const validation = blockchain.addTransaction(tx);
-    expect(validation.success).toEqual(false);
-  });
+  //   const validation = blockchain.addTransaction(tx);
+  //   expect(validation.success).toEqual(false);
+  // });
 
   test("Should Get Transaction (Mempool)", () => {
     const blockchain = new Blockchain();

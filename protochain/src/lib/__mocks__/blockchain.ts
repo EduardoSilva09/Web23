@@ -76,7 +76,7 @@ export default class Blockchain {
 
   getNextBlock(): BlockInfo {
     const data = new Date().toString();
-    const difficulty = 0;
+    const difficulty = 1;
     const previousHash = this.getLastBlock().hash;
     const index = this.blocks.length;
     const feePerTx = this.getFeePerTx();

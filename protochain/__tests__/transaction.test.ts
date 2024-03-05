@@ -55,8 +55,10 @@ describe("Transaction tests", () => {
   });
 
   test("Should NOT be valid (Invalid txInput)", () => {
-    const tx = new Transaction({ to: "carteeeeeira" } as Transaction);
-
+    const tx = new Transaction({
+      to: "carteeeeeira",
+      txInput: new TransactionInput()
+    } as Transaction);
     if (tx.txInput) tx.txInput.amount = -1;
     const valid = tx.isValid();
     expect(tx.type).toEqual(TransactionType.REGULAR);

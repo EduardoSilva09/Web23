@@ -9,7 +9,7 @@ jest.mock("../src/lib/transaction");
 jest.mock("../src/lib/transactionInput");
 
 describe("Block tests", () => {
-  const exampleDifficlty = 0;
+  const exampleDifficlty = 1;
   const exampleMiner = "Eduardo";
   let genesis: Block;
 
@@ -29,10 +29,29 @@ describe("Block tests", () => {
         txInput: new TransactionInput()
       } as Transaction)]
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
     block.mine(exampleDifficlty, exampleMiner);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.message).toEqual('');
     expect(valid.success).toBeTruthy();
+  });
+
+  test("Should NOT be valid (no fee)", () => {
+    const block = new Block({
+      index: 1,
+      previousHash: genesis.hash,
+      transactions: [new Transaction({
+        txInput: new TransactionInput()
+      } as Transaction)]
+    } as Block);
+    block.mine(exampleDifficlty, exampleMiner);
+    const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
+    expect(valid.success).toBeFalsy();
   });
 
   test("Should create from block info", () => {
@@ -46,6 +65,13 @@ describe("Block tests", () => {
       maxDifficulty: 0,
       previousHash: genesis.hash,
     } as BlockInfo);
+
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
     block.mine(exampleDifficlty, exampleMiner);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeTruthy();
@@ -65,6 +91,13 @@ describe("Block tests", () => {
         txInput: new TransactionInput()
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
+    block.mine(exampleDifficlty, exampleMiner);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
@@ -77,8 +110,15 @@ describe("Block tests", () => {
         txInput: new TransactionInput()
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
     block.timestamp = -1;
     block.hash = block.getHash();
+    block.mine(exampleDifficlty, exampleMiner);
+
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
@@ -86,11 +126,19 @@ describe("Block tests", () => {
   test("Should NOT be valid (no mined)", () => {
     const block = new Block({
       index: 1,
+      nonce: 0,
+      miner: exampleMiner,
       previousHash: genesis.hash,
       transactions: [new Transaction({
         txInput: new TransactionInput()
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
 
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
@@ -104,6 +152,12 @@ describe("Block tests", () => {
         txInput: new TransactionInput()
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
     block.mine(exampleDifficlty, exampleMiner);
     block.hash = "";
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
@@ -121,7 +175,13 @@ describe("Block tests", () => {
         txInput
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
 
+    block.hash = block.getHash();
+    block.mine(exampleDifficlty, exampleMiner);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
@@ -134,6 +194,13 @@ describe("Block tests", () => {
         txInput: new TransactionInput()
       } as Transaction)],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
+    block.mine(exampleDifficlty, exampleMiner);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
@@ -152,6 +219,18 @@ describe("Block tests", () => {
         } as Transaction)
       ],
     } as Block);
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.message).toEqual('Too many fees.');
     expect(valid.success).toBeFalsy();
@@ -167,6 +246,13 @@ describe("Block tests", () => {
         } as Transaction)
       ],
     } as Block);
+
+    block.transactions.push(new Transaction({
+      to: exampleMiner,
+      type: TransactionType.FEE
+    } as Transaction));
+
+    block.hash = block.getHash();
 
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();

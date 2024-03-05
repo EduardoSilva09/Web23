@@ -10,13 +10,13 @@ export default class Transaction {
   timestamp: number;
   hash: string;
   to: string;
-  txInput: TransactionInput;
+  txInput: TransactionInput | undefined;
 
   constructor(tx?: Transaction) {
     this.type = tx?.type || TransactionType.REGULAR;
     this.timestamp = tx?.timestamp || Date.now();
     this.to = tx?.to || "carteira1";
-    this.txInput = tx?.txInput ? new TransactionInput(tx?.txInput) : new TransactionInput()
+    this.txInput = tx?.txInput ? new TransactionInput(tx?.txInput) : undefined
     this.hash = tx?.hash || this.getHash();
   }
 
@@ -34,8 +34,10 @@ export default class Transaction {
   isValid(): Validation {
     if (!this.to) return new Validation(false, "Invalid mock transaction.");
 
-    const txInputValidation = this.txInput.isValid();
-    if (!txInputValidation.success) return new Validation(false, "Invalid mock transaction.");
+    if (this.txInput) {
+      const txInputValidation = this.txInput.isValid();
+      if (!txInputValidation.success) return new Validation(false, "Invalid mock transaction.");
+    }
     return new Validation();
   }
 }

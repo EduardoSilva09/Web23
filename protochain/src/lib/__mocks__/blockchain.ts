@@ -16,15 +16,15 @@ export default class Blockchain {
   /**
    * Creates a new mocked blockchain
    */
-  constructor() {
+  constructor(miner: string) {
+    this.blocks = [];
+    this.mempool = [new Transaction()]
+
     this.blocks = [
       new Block({
         index: 0,
         hash: "abc",
-        transactions: [new Transaction({
-          txInput: new TransactionInput(),
-          type: TransactionType.FEE
-        } as Transaction)],
+        miner,
         timestamp: Date.now(),
       } as Block),
     ];
@@ -59,6 +59,8 @@ export default class Blockchain {
    * @returns Returns the found block or undefined
    */
   getBlock(hash: string): Block | undefined {
+    if (!hash || hash === '-1') return undefined;
+
     return this.blocks.find((b) => b.hash === hash);
   }
 
@@ -75,7 +77,6 @@ export default class Blockchain {
   }
 
   getNextBlock(): BlockInfo {
-    const data = new Date().toString();
     const difficulty = 1;
     const previousHash = this.getLastBlock().hash;
     const index = this.blocks.length;
@@ -88,9 +89,7 @@ export default class Blockchain {
       difficulty,
       maxDifficulty,
       feePerTx,
-      transactions: [new Transaction({
-        txInput: new TransactionInput()
-      } as Transaction)],
+      transactions: this.mempool.slice(0, 2),
     } as BlockInfo;
   }
 
@@ -102,9 +101,16 @@ export default class Blockchain {
   }
 
   getTransaction(hash: string): TransactionSearch {
+    if (hash === '-1') {
+      return {
+        mempoolIndex: -1,
+        blockIndex: - 1
+      } as TransactionSearch;
+    }
+
     return {
       mempoolIndex: 0,
-      transaction: { hash }
+      transaction: new Transaction()
     } as TransactionSearch;
   }
 }

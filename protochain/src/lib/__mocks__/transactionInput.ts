@@ -6,6 +6,7 @@ export default class TransactionInput {
   fromAddress: string;
   amount: number;
   signature: string;
+  previousTx: string;
   /**
    * Cria um novo TransactionInput
    * @param txInput dados do transaction input
@@ -14,6 +15,7 @@ export default class TransactionInput {
     this.fromAddress = txInput?.fromAddress || "carteira";
     this.amount = txInput?.amount || 10;
     this.signature = txInput?.signature || "abc";
+    this.previousTx = txInput?.previousTx || "abx"
   }
   /**
    * Assina o transaction input, para garantir a validade.
@@ -33,8 +35,8 @@ export default class TransactionInput {
    * @returns Objeto com o resultado das validações
    */
   isValid(): Validation {
-    if (!this.signature)
-      return new Validation(false, 'Signature is required.');
+    if (!this.previousTx || !this.signature)
+      return new Validation(false, 'Signature and previous TX are required.');
 
     if (this.amount < 1)
       return new Validation(false, 'Amount must be greater than zero.');

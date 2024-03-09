@@ -9,6 +9,8 @@ export default class Block {
   hash: string;
   previousHash: string;
   transactions: Transaction[];
+  nonce: number;
+  miner: string;
 
   /**
    * Creates a new mocked block
@@ -19,11 +21,17 @@ export default class Block {
     this.timestamp = block?.timestamp || Date.now();
     this.transactions = block?.transactions || [] as Transaction[];
     this.previousHash = block?.previousHash || "";
+    this.nonce = block?.nonce || 0;
+    this.miner = block?.miner || "abc";
     this.hash = block?.hash || this.getHash();
   }
 
   getHash(): string {
     return this.hash || "abc";
+  }
+
+  mine(difficulty: number, miner: string) {
+    this.miner = miner;
   }
 
   /**

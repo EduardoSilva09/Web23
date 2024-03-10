@@ -1,28 +1,34 @@
-import { describe, test, expect, jest } from "@jest/globals";
+import { describe, test, expect, jest, beforeAll } from "@jest/globals";
 import Blockchain from "../src/lib/blockchain";
 import Block from "../src/lib/block";
 import Transaction from "../src/lib/transaction";
 import TransactionInput from "../src/lib/transactionInput";
+import Wallet from "../src/lib/wallet";
 
 jest.mock("../src/lib/block");
 jest.mock("../src/lib/transaction");
 jest.mock("../src/lib/transactionInput");
 
 describe("Blockchain tests", () => {
+  let alice: Wallet;
+  beforeAll(() => {
+    alice = new Wallet()
+  })
+
   test("Should be has genesis block", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     expect(blockchain.blocks.length).toEqual(1);
   });
 
   test("Should be valid (genesis)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     expect(blockchain.isValid().success).toEqual(true);
   });
 
   test("Should NOT be valid", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput()
+      txInputs: [new TransactionInput()]
     } as Transaction);
 
     blockchain.mempool.push(tx);
@@ -39,9 +45,9 @@ describe("Blockchain tests", () => {
   });
 
   test("Should add block", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput()
+      txInputs: [new TransactionInput()]
     } as Transaction);
 
     blockchain.mempool.push(tx);
@@ -57,13 +63,13 @@ describe("Blockchain tests", () => {
   });
 
   test("Should NOT add block", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const result = blockchain.addBlock(
       new Block({
         index: -1,
         previousHash: blockchain.blocks[0].hash,
         transactions: [new Transaction({
-          txInput: new TransactionInput()
+          txInputs: [new TransactionInput()]
         } as Transaction)],
       } as Block)
     );
@@ -71,19 +77,19 @@ describe("Blockchain tests", () => {
   });
 
   test("Should get block", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const block = blockchain.getBlock(blockchain.blocks[0].hash);
     expect(block).toBeTruthy();
   });
 
   test("Should be valid block (two blocks)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const result = blockchain.addBlock(
       new Block({
         index: 1,
         previousHash: blockchain.blocks[0].hash,
         transactions: [new Transaction({
-          txInput: new TransactionInput()
+          txInputs: [new TransactionInput()]
         } as Transaction)],
       } as Block)
     );
@@ -91,22 +97,22 @@ describe("Blockchain tests", () => {
   });
 
   test("Should get next block info", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     blockchain.mempool.push(new Transaction())
     const info = blockchain.getNextBlock();
     expect(info ? info.index : 0).toEqual(1);
   });
 
   test("Should NOT get next block info", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const info = blockchain.getNextBlock();
     expect(info).toBeNull();
   });
 
   test("Should Add Transaction", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zaa'
     } as Transaction);
 
@@ -115,14 +121,14 @@ describe("Blockchain tests", () => {
   });
 
   test("Should NOT Add Transaction (Pending tx)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zaa'
     } as Transaction);
     blockchain.addTransaction(tx);
     const tx2 = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zyx'
     } as Transaction);
 
@@ -131,11 +137,11 @@ describe("Blockchain tests", () => {
   });
 
   test("Should NOT Add Transaction (Invalid tx)", () => {
-    const blockchain = new Blockchain();
-    const txInput = new TransactionInput()
-    txInput.amount = -1
+    const blockchain = new Blockchain(alice.publicKey);
+    const txInputs = [new TransactionInput()]
+    txInputs[0].amount = -1
     const tx = new Transaction({
-      txInput,
+      txInputs,
       hash: 'zaa'
     } as Transaction);
 
@@ -144,9 +150,9 @@ describe("Blockchain tests", () => {
   });
 
   test("Should NOT Add Transaction (Duplicated in Blockchain)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zaa'
     } as Transaction);
 
@@ -161,9 +167,9 @@ describe("Blockchain tests", () => {
   });
 
   // test("Should NOT Add Transaction (Duplicated in Mempool)", () => {
-  //   const blockchain = new Blockchain();
+  //   const blockchain = new Blockchain(alice.publicKey);
   //   const tx = new Transaction({
-  //     txInput: new TransactionInput(),
+  //     txInputs: [new TransactionInput()],
   //     hash: 'zaa'
   //   } as Transaction);
 
@@ -174,9 +180,9 @@ describe("Blockchain tests", () => {
   // });
 
   test("Should Get Transaction (Mempool)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zaa'
     } as Transaction);
 
@@ -186,9 +192,9 @@ describe("Blockchain tests", () => {
   });
 
   test("Should Get Transaction (Blockchain)", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const tx = new Transaction({
-      txInput: new TransactionInput(),
+      txInputs: [new TransactionInput()],
       hash: 'zaa'
     } as Transaction);
 
@@ -203,7 +209,7 @@ describe("Blockchain tests", () => {
   });
 
   test("Should NOT Get Transaction", () => {
-    const blockchain = new Blockchain();
+    const blockchain = new Blockchain(alice.publicKey);
     const result = blockchain.getTransaction('hash');
     expect(result.mempoolIndex).toEqual(-1);
     expect(result.blockIndex).toEqual(-1);

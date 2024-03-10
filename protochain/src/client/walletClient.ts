@@ -103,6 +103,16 @@ function sendTx() {
         console.log('Invalid amount.');
         return preMenu();
       }
+      const walletResponse = await axios.get(`${BLOCKCHAIN_SERVER}wallets/${myWalletPub}`);
+      const balance = walletResponse.data.balance as number;
+      const fee = walletResponse.data.fee as number;
+      const utxo = walletResponse.data.utxo as TransactionOutput[];
+
+      if (balance < (amount + fee)) {
+        console.log('Insufficient balance (tx + fee).');
+        return preMenu();
+      }
+
       const tx = new Transaction();
       tx.timestamp = Date.now()
       tx.txOutputs = [new TransactionOutput(
@@ -111,10 +121,12 @@ function sendTx() {
           amount
         } as TransactionOutput
       )];
+
       tx.type = TransactionType.REGULAR;
       tx.txInputs = [new TransactionInput({
         amount,
-        fromAddress: myWalletPub
+        fromAddress: myWalletPub,
+        previousTx: utxo[0].tx
       } as TransactionInput)]
 
       tx.txInputs[0].sign(myWalletPriv);

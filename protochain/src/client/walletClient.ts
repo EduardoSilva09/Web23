@@ -6,6 +6,7 @@ import Wallet from "../lib/wallet";
 import Transaction from '../lib/transaction';
 import TransactionType from '../lib/transactionType';
 import TransactionInput from '../lib/transactionInput';
+import TransactionOutput from '../lib/transactionOutput';
 
 const BLOCKCHAIN_SERVER = process.env.BLOCKCHAIN_SERVER;
 const rl = readline.createInterface({
@@ -104,15 +105,21 @@ function sendTx() {
       }
       const tx = new Transaction();
       tx.timestamp = Date.now()
-      tx.to = toWallet;
+      tx.txOutputs = [new TransactionOutput(
+        {
+          toAddress: toWallet,
+          amount
+        } as TransactionOutput
+      )];
       tx.type = TransactionType.REGULAR;
-      tx.txInput = new TransactionInput({
+      tx.txInputs = [new TransactionInput({
         amount,
         fromAddress: myWalletPub
-      } as TransactionInput)
+      } as TransactionInput)]
 
-      tx.txInput.sign(myWalletPriv);
+      tx.txInputs[0].sign(myWalletPriv);
       tx.hash = tx.getHash();
+      tx.txOutputs[0].tx = tx.hash;
 
       try {
         const txResponse = await axios.post(`${BLOCKCHAIN_SERVER}transactions/`, tx);

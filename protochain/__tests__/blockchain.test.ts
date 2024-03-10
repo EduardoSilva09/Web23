@@ -139,12 +139,17 @@ describe("Blockchain tests", () => {
   test("Should NOT Add Transaction (Invalid tx)", () => {
     const blockchain = new Blockchain(alice.publicKey);
     const txInputs = [new TransactionInput()]
-    txInputs[0].amount = -1
+
     const tx = new Transaction({
       txInputs,
-      hash: 'zaa'
+      hash: 'zaa',
+      timestamp: -1
     } as Transaction);
 
+    if (tx.txInputs && tx.txInputs[0]) {
+      tx.txInputs[0].previousTx = '';
+      tx.txInputs[0].signature = '';
+    }
     const validation = blockchain.addTransaction(tx);
     expect(validation.success).toEqual(false);
   });

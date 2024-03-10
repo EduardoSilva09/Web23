@@ -83,7 +83,7 @@ export default class Block {
         return new Validation(false, "Too many fees.");
       }
 
-      if (!feeTxs[0].txOutputs.some(txo => txo.toAddress !== this.miner)) {
+      if (!feeTxs[0].txOutputs.some(txo => txo.toAddress === this.miner)) {
         return new Validation(false, "Invalid fee tx: different from miner.");
       }
       const validations = this.transactions.map((tx) => tx.isValid());

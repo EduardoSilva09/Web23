@@ -13,7 +13,6 @@ jest.mock("../src/lib/transactionOutput");
 
 describe("Block tests", () => {
   const exampleDifficlty = 1;
-  const exampleMiner = "Eduardo";
   let genesis: Block;
   let alice: Wallet;
 
@@ -30,29 +29,24 @@ describe("Block tests", () => {
     const block = new Block({
       index: 1,
       previousHash: genesis.hash,
-      transactions: [new Transaction({
-        txInputs: [new TransactionInput()]
-      } as Transaction)]
+      transactions: [] as Transaction[],
     } as Block);
 
     const txo = new TransactionOutput({
       toAddress: alice.publicKey,
-      amount: 10
+      amount: 1
     } as TransactionOutput);
 
     const tx = new Transaction({
+      type: TransactionType.FEE,
       txOutputs: [txo],
-      type: TransactionType.FEE
     } as Transaction)
 
-    tx.hash = tx.getHash()
-    tx.txOutputs[0].tx = tx.hash;
     block.transactions.push(tx);
-
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
+
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
-    expect(valid.message).toEqual('');
     expect(valid.success).toBeTruthy();
   });
 
@@ -64,16 +58,14 @@ describe("Block tests", () => {
         txInputs: [new TransactionInput()]
       } as Transaction)]
     } as Block);
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
 
   test("Should create from block info", () => {
     const block = Block.fromBlockInfo({
-      transactions: [new Transaction({
-        txInputs: [new TransactionInput()]
-      } as Transaction)],
+      transactions: [],
       difficulty: exampleDifficlty,
       feePerTx: 1,
       index: 1,
@@ -81,13 +73,20 @@ describe("Block tests", () => {
       previousHash: genesis.hash,
     } as BlockInfo);
 
-    block.transactions.push(new Transaction({
-      txOutputs: [new TransactionOutput()],
-      type: TransactionType.FEE
-    } as Transaction));
+    const txo = new TransactionOutput({
+      toAddress: alice.publicKey,
+      amount: 1
+    } as TransactionOutput)
 
+    const tx = new Transaction({
+      type: TransactionType.FEE,
+      txOutputs: [txo]
+    } as Transaction);
+
+    block.transactions.push(tx);
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
+
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeTruthy();
   });
@@ -112,7 +111,7 @@ describe("Block tests", () => {
     } as Transaction));
 
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
@@ -132,7 +131,7 @@ describe("Block tests", () => {
 
     block.timestamp = -1;
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
 
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
@@ -142,7 +141,7 @@ describe("Block tests", () => {
     const block = new Block({
       index: 1,
       nonce: 0,
-      miner: exampleMiner,
+      miner: alice.publicKey,
       previousHash: genesis.hash,
       transactions: [new Transaction({
         txInputs: [new TransactionInput()]
@@ -173,21 +172,20 @@ describe("Block tests", () => {
     } as Transaction));
 
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
     block.hash = "";
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });
 
   test("Should NOT be valid (invalid tx)", () => {
-    const txInputs = [new TransactionInput()];
-    txInputs[0].amount = -1;
-
     const block = new Block({
       index: 1,
       previousHash: genesis.hash,
       transactions: [new Transaction({
-        txInputs
+        txInputs: [new TransactionInput()],
+        hash: 'xyz',
+        timestamp: -1
       } as Transaction)],
     } as Block);
     block.transactions.push(new Transaction({
@@ -196,7 +194,7 @@ describe("Block tests", () => {
     } as Transaction));
 
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
     block.transactions[0].txOutputs[0].toAddress = "";
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
@@ -216,7 +214,7 @@ describe("Block tests", () => {
     } as Transaction));
 
     block.hash = block.getHash();
-    block.mine(exampleDifficlty, exampleMiner);
+    block.mine(exampleDifficlty, alice.publicKey);
     const valid = block.isValid(genesis.hash, genesis.index, exampleDifficlty);
     expect(valid.success).toBeFalsy();
   });

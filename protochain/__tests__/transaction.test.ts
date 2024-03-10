@@ -22,7 +22,6 @@ describe("Transaction tests", () => {
 
   test("Should be valid (FEE)", () => {
     const tx = new Transaction({
-      txInputs: [new TransactionInput()],
       txOutputs: [new TransactionOutput()],
       type: TransactionType.FEE
     } as Transaction);

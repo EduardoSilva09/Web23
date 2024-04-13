@@ -20,6 +20,32 @@ describe("Transaction tests", () => {
     expect(valid.success).toBeTruthy();
   });
 
+  test("Should NOT be valid (txo hash != tx hash)", () => {
+    const tx = new Transaction({
+      txInputs: [new TransactionInput()],
+      txOutputs: [new TransactionOutput()]
+    } as Transaction);
+
+    tx.txOutputs[0].tx = 'invalid tx';
+
+    const valid = tx.isValid();
+    expect(valid.success).toBeFalsy();
+  });
+
+  test("Should NOT be valid (Input < Output)", () => {
+    const tx = new Transaction({
+      txInputs: [new TransactionInput(
+        { amount: 1 } as TransactionInput
+      )],
+      txOutputs: [new TransactionOutput(
+        { amount: 2 } as TransactionOutput
+      )]
+    } as Transaction);
+
+    const valid = tx.isValid();
+    expect(valid.success).toBeFalsy();
+  });
+
   test("Should be valid (FEE)", () => {
     const tx = new Transaction({
       txOutputs: [new TransactionOutput()],

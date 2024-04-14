@@ -42,6 +42,19 @@ export default class Transaction {
     return sha256(this.type + from + to + this.timestamp).toString();
   }
 
+  getFee(): number {
+    let inputSum: number = 0, outputSum: number = 0;
+    if (this.txInputs && this.txInputs.length) {
+      inputSum = this.txInputs.map(txi => txi.amount).reduce((a, b) => a + b, 0);
+
+      if (this.txOutputs && this.txOutputs.length)
+        outputSum = this.txOutputs.map(txo => txo.amount).reduce((a, b) => a + b, 0);
+
+      return inputSum - outputSum;
+    }
+    return 0;
+  }
+
   /**
    * Validates the Transaction
    * @returns Returns true if the transaction is valid

@@ -235,4 +235,10 @@ export default class Blockchain {
 
     return txOuts as TransactionOutput[];
   }
+
+  getBalance(wallet: string): number {
+    const utxo = this.getUtxo(wallet);
+    if (!utxo || !utxo.length) return 0;
+    return utxo.reduce((a, b) => a + b.amount, 0);
+  }
 }

@@ -92,6 +92,14 @@ export default class Blockchain {
       if (pendingTx && pendingTx.length) {
         return new Validation(false, 'This wallet has a pending transaction.');
       }
+
+      const utxo = this.getUtxo(from);
+      for (let i = 0; i < transaction.txInputs.length; i++) {
+        const txi = transaction.txInputs[i];
+        if (utxo.findIndex(txo => txo.tx === txi.previousTx && txo.amount >= txi.amount) === -1) {
+          return new Validation(false, 'Invalid transaction: the TXO is already spent or unexistent.');
+        }
+      }
     }
 
     const validation = transaction.isValid();

@@ -3,6 +3,7 @@ import sha256 from "crypto-js/sha256";
 import Validation from "./validation";
 import TransactionInput from "./transactionInput";
 import TransactionOutput from "./transactionOutput";
+import Blockchain from "./blockchain";
 
 /**
  * Transaction class
@@ -45,7 +46,7 @@ export default class Transaction {
    * Validates the Transaction
    * @returns Returns true if the transaction is valid
    */
-  isValid(): Validation {
+  isValid(difficulty: number, totalFees: number): Validation {
     if (this.hash !== this.getHash())
       return new Validation(false, "Invalid hash.");
 
@@ -73,6 +74,12 @@ export default class Transaction {
     }
 
     // TODO: validar taxas e recompensa quando tx.type === FEE
+    if (this.type === TransactionType.FEE) {
+      const txo = this.txOutputs[0]
+      if (txo.amount > Blockchain.getRewardAmount(difficulty) + totalFees) {
+        return new Validation(false, 'Invalid tx reward.')
+      }
+    }
 
     return new Validation();
   }

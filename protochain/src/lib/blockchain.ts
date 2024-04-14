@@ -102,15 +102,12 @@ export default class Blockchain {
       }
     }
 
-    const validation = transaction.isValid();
+    const validation = transaction.isValid(this.getDifficulty(), this.getFeePerTx());
     if (!validation.success)
       return new Validation(false, 'Invalid tx: ' + validation.message);
     //Validando se a transação já foi adicionada  
     if (this.blocks.some(b => b.transactions.some(tx => tx.hash === transaction.hash)))
       return new Validation(false, 'Duplicated tx in blockchain.');
-
-    // if (this.mempool.some(tx => tx.hash = transaction.hash))
-    //   return new Validation(false, 'Duplicated tx in mempool.');
 
     this.mempool.push(transaction);
     return new Validation(true, transaction.hash);
@@ -129,7 +126,8 @@ export default class Blockchain {
     const validation = block.isValid(
       nextBlock.previousHash,
       nextBlock.index - 1,
-      nextBlock.difficulty
+      nextBlock.difficulty,
+      nextBlock.feePerTx
     );
     if (!validation.success)
       return new Validation(false, `Invalid block: ${validation.message}`);
@@ -168,7 +166,8 @@ export default class Blockchain {
       const validation = currentBlock.isValid(
         previousBlock.hash,
         previousBlock.index,
-        this.getDifficulty()
+        this.getDifficulty(),
+        this.getFeePerTx()
       );
       if (!validation.success)
         return new Validation(
@@ -240,5 +239,9 @@ export default class Blockchain {
     const utxo = this.getUtxo(wallet);
     if (!utxo || !utxo.length) return 0;
     return utxo.reduce((a, b) => a + b.amount, 0);
+  }
+
+  static getRewardAmount(difficulty: number): number {
+    return (64 - difficulty) * 10;
   }
 }

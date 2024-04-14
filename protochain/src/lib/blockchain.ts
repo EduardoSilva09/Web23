@@ -5,6 +5,7 @@ import Transaction from "./transaction";
 import TransactionType from "./transactionType";
 import TransactionSearch from "./transactionSearch";
 import TransactionOutput from "./transactionOutput";
+import TransactionInput from "./transactionInput";
 
 /**
  * Blockchain class
@@ -193,5 +194,37 @@ export default class Blockchain {
       feePerTx,
       transactions,
     } as BlockInfo;
+  }
+
+  getTxInputs(wallet: string): (TransactionInput | undefined)[] {
+    return this.blocks
+      .map(b => b.transactions)
+      .flat()
+      .filter(tx => tx.txInputs && tx.txInputs.length > 0)
+      .map(tx => tx.txInputs)
+      .flat().filter(txi => txi!.fromAddress === wallet);
+  }
+
+  getTxOutputs(wallet: string): (TransactionOutput | undefined)[] {
+    return this.blocks
+      .map(b => b.transactions)
+      .flat()
+      .filter(tx => tx.txOutputs && tx.txOutputs.length > 0)
+      .map(tx => tx.txOutputs)
+      .flat().filter(txi => txi!.toAddress === wallet);
+  }
+
+  getUtxo(wallet: string): TransactionOutput[] {
+    const txIns = this.getTxInputs(wallet);
+    const txOuts = this.getTxOutputs(wallet);
+
+    if (!txIns || !txIns.length) return txOuts as TransactionOutput[];
+
+    txIns.forEach(txi => {
+      const index = txOuts.findIndex(txo => txo!.amount === txi!.amount);
+      txOuts.splice(index, 1);
+    })
+
+    return txOuts as TransactionOutput[];
   }
 }

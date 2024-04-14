@@ -30,14 +30,13 @@ export default class Blockchain {
   }
 
   createGenesis(miner: string): Block {
-    const amount = 10;
-    const tx = new Transaction({
-      type: TransactionType.FEE,
-      txOutputs: [new TransactionOutput({
+    const amount = Blockchain.getRewardAmount(this.getDifficulty());
+    const tx = Transaction.fromReward(
+      new TransactionOutput({
         amount,
         toAddress: miner
-      } as TransactionOutput)],
-    } as Transaction)
+      } as TransactionOutput)
+    )
 
     tx.hash = tx.getHash();
     tx.txOutputs[0].tx = tx.hash;

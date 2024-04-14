@@ -96,4 +96,16 @@ export default class Transaction {
 
     return new Validation();
   }
+
+  static fromReward(txo: TransactionOutput): Transaction {
+    const tx = new Transaction({
+      type: TransactionType.FEE,
+      txOutputs: [txo]
+    } as Transaction)
+
+    tx.hash = tx.getHash()
+    tx.txOutputs[0].tx = tx.hash;
+    return tx;
+  }
+
 }

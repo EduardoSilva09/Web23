@@ -35,16 +35,10 @@ function getRewardTx(blockInfo: BlockInfo, nextBlock: Block): Transaction | unde
 
   const txo = new TransactionOutput({
     toAddress: minerWallet.publicKey,
-    amount: 10
+    amount
   } as TransactionOutput);
-  const tx = new Transaction({
-    txOutputs: [txo],
-    type: TransactionType.FEE
-  } as Transaction)
 
-  tx.hash = tx.getHash()
-  tx.txOutputs[0].tx = tx.hash;
-  return tx;
+  return Transaction.fromReward(txo);
 }
 
 async function mine() {
@@ -63,7 +57,9 @@ async function mine() {
   const blockInfo = data as BlockInfo;
 
   const newBlock = Block.fromBlockInfo(blockInfo);
-  newBlock.transactions.push(getRewardTx());
+  const tx = getRewardTx(blockInfo, newBlock);
+  if (!tx) return;
+  newBlock.transactions.push(tx);
 
   newBlock.miner = minerWallet.publicKey;
   newBlock.hash = newBlock.getHash();

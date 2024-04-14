@@ -5,7 +5,6 @@ import BlockInfo from "../lib/blockInfo";
 import Block from "../lib/block";
 import Wallet from "../lib/wallet";
 import Transaction from "../lib/transaction";
-import TransactionType from "../lib/transactionType";
 import TransactionOutput from "../lib/transactionOutput";
 import Blockchain from "../lib/blockchain";
 

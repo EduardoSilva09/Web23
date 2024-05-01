@@ -1,8 +1,9 @@
-import { describe, test, expect, jest } from "@jest/globals";
+import { describe, test, expect, jest, beforeAll } from "@jest/globals";
 import Transaction from "../src/lib/transaction";
 import TransactionType from "../src/lib/transactionType";
 import TransactionInput from "../src/lib/transactionInput";
 import TransactionOutput from "../src/lib/transactionOutput";
+import Wallet from "../src/lib/wallet";
 
 jest.mock("../src/lib/transactionInput");
 jest.mock("../src/lib/transactionOutput");
@@ -10,6 +11,13 @@ jest.mock("../src/lib/transactionOutput");
 describe("Transaction tests", () => {
   const exampleDifficulty: number = 1;
   const exampleFee: number = 1;
+  const exampleTx: string = "5df341f250102c2ead21";
+  let alice: Wallet, bob: Wallet;
+
+  beforeAll(() => {
+    alice = new Wallet()
+    bob = new Wallet()
+  })
 
   test("Should be valid (REGULAR default)", () => {
     const tx = new Transaction({
@@ -92,6 +100,36 @@ describe("Transaction tests", () => {
     const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.REGULAR);
     expect(valid.success).toBeFalsy();
+  });
+
+  test("Should get fee", () => {
+    const txIn = new TransactionInput({
+      amount: 11,
+      fromAddress: alice.publicKey,
+      previousTx: exampleTx
+    } as TransactionInput);
+    txIn.sign(alice.privateKey);
+
+    const txOut = new TransactionOutput({
+      amount: 10,
+      toAddress: bob.publicKey
+    } as TransactionOutput);
+
+    const tx = new Transaction({
+      txInputs: [txIn],
+      txOutputs: [txOut]
+    } as Transaction)
+
+    const result = tx.getFee()
+    expect(result).toBeGreaterThan(0)
+  });
+
+  test("Should get zero fee", () => {
+    const tx = new Transaction()
+    tx.txInputs = undefined
+
+    const result = tx.getFee()
+    expect(result).toEqual(0)
   });
 
 });

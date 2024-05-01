@@ -132,4 +132,30 @@ describe("Transaction tests", () => {
     expect(result).toEqual(0)
   });
 
+  test("Should create from Reward", () => {
+    const tx = Transaction.fromReward({
+      amount: 10,
+      toAddress: alice.publicKey,
+      tx: exampleTx
+    } as TransactionOutput)
+
+    const result = tx.isValid(exampleDifficulty, exampleFee)
+    expect(result.success).toBeTruthy()
+  });
+
+  test("Should NOT br valid (fee excess)", () => {
+    const txOut = new TransactionOutput({
+      amount: Number.MAX_VALUE,
+      toAddress: bob.publicKey
+    } as TransactionOutput)
+
+    const tx = new Transaction({
+      type: TransactionType.FEE,
+      txOutputs: [txOut]
+    } as Transaction)
+
+    const result = tx.isValid(exampleDifficulty, exampleFee)
+    expect(result.success).toBeFalsy()
+  });
+
 });

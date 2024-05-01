@@ -33,7 +33,7 @@ export default class Transaction {
    * @returns Returns true if the transaction is valid
    */
   isValid(difficulty: number, totalFees: number): Validation {
-    if (this.timestamp < 1 || !this.hash || !difficulty || !totalFees) return new Validation(false, "Invalid mock transaction.");
+    if (this.timestamp < 1 || !this.hash || difficulty < 1 || totalFees < 0) return new Validation(false, "Invalid mock transaction.");
     return new Validation();
   }
   static fromReward(txo: TransactionOutput): Transaction {

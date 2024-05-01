@@ -8,6 +8,8 @@ jest.mock("../src/lib/transactionInput");
 jest.mock("../src/lib/transactionOutput");
 
 describe("Transaction tests", () => {
+  const exampleDifficulty: number = 1;
+  const exampleFee: number = 1;
 
   test("Should be valid (REGULAR default)", () => {
     const tx = new Transaction({
@@ -15,7 +17,7 @@ describe("Transaction tests", () => {
       txOutputs: [new TransactionOutput()]
     } as Transaction);
 
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.REGULAR);
     expect(valid.success).toBeTruthy();
   });
@@ -28,7 +30,7 @@ describe("Transaction tests", () => {
 
     tx.txOutputs[0].tx = 'invalid tx';
 
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(valid.success).toBeFalsy();
   });
 
@@ -42,7 +44,7 @@ describe("Transaction tests", () => {
       )]
     } as Transaction);
 
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(valid.success).toBeFalsy();
   });
 
@@ -55,7 +57,7 @@ describe("Transaction tests", () => {
     tx.txInputs = undefined;
     tx.hash = tx.getHash();
 
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.FEE);
     expect(valid.success).toBeTruthy();
   });
@@ -69,14 +71,14 @@ describe("Transaction tests", () => {
       hash: 'abc',
     } as Transaction);
 
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.REGULAR);
     expect(valid.success).toBeFalsy();
   });
 
   test("Should NOT be valid (Invalid to)", () => {
     const tx = new Transaction();
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.REGULAR);
     expect(valid.success).toBeFalsy();
   });
@@ -87,7 +89,7 @@ describe("Transaction tests", () => {
       txInputs: [new TransactionInput()]
     } as Transaction);
     if (tx.txInputs) tx.txInputs[0].amount = -1;
-    const valid = tx.isValid();
+    const valid = tx.isValid(exampleDifficulty, exampleFee);
     expect(tx.type).toEqual(TransactionType.REGULAR);
     expect(valid.success).toBeFalsy();
   });
